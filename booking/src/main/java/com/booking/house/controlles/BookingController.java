@@ -63,11 +63,12 @@ public class BookingController {
 				discount = true;
 				break;
 			}else {
+				log.info("No se encontraron descuentos");
 				discount = false;
 			}
 		 }
 		 if(!discount) {
-			 log.info("invalit discount");
+			log.error("invalit discount");
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("invalit discount");
 		 }
 		}
@@ -90,13 +91,14 @@ public class BookingController {
             @Override
             public List<DiscountCodeData> doWithRetry(RetryContext retryContext) {
                 // do something in this service
-                log.info(String.format("Retry retryTemplateExample %d", LocalDateTime.now().getSecond()));
+                log.info(String.format("Retry: consumo de API externa %d", LocalDateTime.now().getSecond()));
                 try {
                 	DiscountCodeData[] result = restTemplate.getForObject(uri, DiscountCodeData[].class);					
                 	List<DiscountCodeData> data = Arrays.asList(result);
                 	 return data;
 				} catch (Exception e) {
 					// TODO: handle exception
+						log.error("No se pudo consumir el servicio " + e);
 					 throw new ApiRetryException("Error in process");
 				}
                 

@@ -18,7 +18,7 @@ public class ApiRetryListener extends RetryListenerSupport {
 
     @Override
     public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-        LOGGER.info("ApiRetryListener.onError");
+        LOGGER.error("ApiRetryListener.onError");
     }
 
     @Override
