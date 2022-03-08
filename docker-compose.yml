@@ -1,0 +1,50 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3.8'
+
+# Define services
+services:
+  db:
+    image: postgres
+    container_name: db
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=booking
+    volumes:
+      - db-data:/var/lib/postgres
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - booking
+
+  app-server:
+    # Configuration for building the docker image for the backend service
+    build:
+      context: booking # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: always
+    depends_on: 
+       db:
+         condition: service_healthy # This service depends on mysql. Start that first.
+    environment: # Pass environment variables to the service
+      spring.datasource.url: jdbc:postgresql://db:5432/booking
+      spring.datasource.username: postgres
+      spring.datasource.password: postgres    
+    networks:
+      - booking
+# Volumes
+volumes:
+  db-data:
+
+networks:
+  booking:
